@@ -19,7 +19,14 @@ function Invoke-Wsl {
 
 function ConvertTo-WslPath {
     param([Parameter(Mandatory)][string]$Path)
-    $resolved = (Resolve-Path -LiteralPath $Path).Path
+    if (Test-Path -LiteralPath $Path) {
+        $resolved = (Resolve-Path -LiteralPath $Path).Path
+    } else {
+        $parent = Split-Path -Parent $Path
+        $leaf = Split-Path -Leaf $Path
+        $resolvedParent = (Resolve-Path -LiteralPath $parent).Path
+        $resolved = Join-Path $resolvedParent $leaf
+    }
 
     if ($resolved -match '^([A-Za-z]):\\(.*)$') {
         $drive = $Matches[1].ToLowerInvariant()
@@ -45,6 +52,56 @@ function Copy-ToContainer {
     Invoke-Wsl ("docker cp {0} {1}" -f (Quote-Bash $wslSource), (Quote-Bash "${ContainerName}:$Destination"))
 }
 
+function Update-IndexHtmlTheme {
+    param(
+        [Parameter(Mandatory)][string]$ThemeDir
+    )
+
+    $customCss = Get-Content -LiteralPath (Join-Path $ThemeDir 'custom.css') -Raw
+    $loaderJs = Get-Content -LiteralPath (Join-Path $ThemeDir 'loader.js') -Raw
+    $tempIndex = Join-Path ([System.IO.Path]::GetTempPath()) "openwebui-index-$PID.html"
+    $wslTempIndex = ConvertTo-WslPath $tempIndex
+
+    Invoke-Wsl ("docker cp {0} {1}" -f (Quote-Bash "${ContainerName}:/app/build/index.html"), (Quote-Bash $wslTempIndex))
+
+    $index = [System.IO.File]::ReadAllText($tempIndex)
+    $index = [regex]::Replace(
+        $index,
+        '<link rel="stylesheet" href="/static/custom\.css(?:\?v=[^"]*)?" crossorigin="use-credentials" />',
+        '<link rel="stylesheet" href="/static/custom.css?v=login-theme-20260615" crossorigin="use-credentials" />'
+    )
+
+    $startMarker = '<!-- openwebui-login-theme:start -->'
+    $endMarker = '<!-- openwebui-login-theme:end -->'
+    $markedBlockPattern = "(?s)\s*$([regex]::Escape($startMarker)).*?$([regex]::Escape($endMarker))\s*"
+    $legacyBlockPattern = "(?s)\s*<script>\s*\(\(\) => \{\s*'use strict';\s*const VIDEO_ID = 'openwebui-auth-background-video';.*?observer\.observe\(document\.documentElement, \{ childList: true, subtree: true \}\);\s*\}\)\(\);\s*</script>\s*"
+
+    $index = [regex]::Replace($index, $markedBlockPattern, "`n")
+    $index = [regex]::Replace($index, $legacyBlockPattern, "`n")
+
+    $themeBlock = @"
+$startMarker
+<style>
+$customCss
+</style>
+<script>
+$loaderJs
+</script>
+$endMarker
+"@
+
+    $stylesheetTag = '<link rel="stylesheet" href="/static/custom.css?v=login-theme-20260615" crossorigin="use-credentials" />'
+    if ($index -notlike "*$stylesheetTag*") {
+        throw 'Could not find the Open WebUI custom stylesheet tag in index.html.'
+    }
+
+    $index = $index.Replace($stylesheetTag, "$stylesheetTag`n$themeBlock")
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($tempIndex, $index, $utf8NoBom)
+
+    Invoke-Wsl ("docker cp {0} {1}" -f (Quote-Bash $wslTempIndex), (Quote-Bash "${ContainerName}:/app/build/index.html"))
+}
+
 function Apply-LoginTheme {
     $repoRoot = Split-Path -Parent $PSScriptRoot
     $themeDir = Join-Path $repoRoot 'assets\login-theme'
@@ -65,6 +122,7 @@ function Apply-LoginTheme {
     Copy-ToContainer -Source $loaderJs -Destination '/app/backend/open_webui/static/loader.js'
     Copy-ToContainer -Source $video -Destination '/app/build/static/turn_into_a_video_animation.mp4'
     Copy-ToContainer -Source $video -Destination '/app/backend/open_webui/static/turn_into_a_video_animation.mp4'
+    Update-IndexHtmlTheme -ThemeDir $themeDir
 }
 
 if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
