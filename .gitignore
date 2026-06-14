@@ -1,0 +1,8 @@
+src/**/bin/
+src/**/obj/
+.vs/
+*.user
+*.suo
+work/
+logs/
+outputs/*.pdb
