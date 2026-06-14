@@ -1,0 +1,176 @@
+html.openwebui-video-auth,
+html.openwebui-video-auth body {
+	background: #050505 !important;
+}
+
+#openwebui-auth-background-video {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	width: 100vw;
+	height: 100vh;
+	object-fit: cover;
+	pointer-events: none;
+	background: #050505;
+	filter: saturate(0.9) contrast(1.05);
+}
+
+#auth-page {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	background: transparent !important;
+}
+
+#auth-page::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background:
+		linear-gradient(90deg, rgba(5, 5, 5, 0.1) 0%, rgba(5, 5, 5, 0.36) 60%, rgba(5, 5, 5, 0.7) 100%),
+		linear-gradient(180deg, rgba(5, 5, 5, 0.48) 0%, rgba(5, 5, 5, 0.12) 45%, rgba(5, 5, 5, 0.58) 100%);
+}
+
+#auth-page > .absolute.bg-white,
+#auth-page > .absolute.dark\:bg-black {
+	background: transparent !important;
+}
+
+#auth-container {
+	inset: 0 !important;
+	z-index: 50 !important;
+	display: block !important;
+	min-height: 100svh !important;
+	color: #f8fafc !important;
+	pointer-events: none;
+}
+
+#auth-container > div {
+	position: fixed !important;
+	top: 0 !important;
+	right: 0 !important;
+	bottom: auto !important;
+	left: auto !important;
+	width: min(420px, 100vw) !important;
+	min-height: 100svh !important;
+	padding: clamp(18px, 3vw, 34px) clamp(20px, 3vw, 34px) !important;
+	display: flex !important;
+	align-items: stretch !important;
+	justify-content: flex-start !important;
+	text-align: left !important;
+	background: rgba(7, 10, 14, 0.72);
+	border-left: 1px solid rgba(255, 255, 255, 0.12);
+	box-shadow: -28px 0 70px rgba(0, 0, 0, 0.28);
+	backdrop-filter: blur(18px) saturate(1.08);
+	-webkit-backdrop-filter: blur(18px) saturate(1.08);
+	opacity: 0;
+	transform: translateX(24px);
+	animation: openwebuiAuthPanelIn 680ms cubic-bezier(0.22, 1, 0.36, 1) 3s forwards;
+	pointer-events: auto;
+}
+
+#auth-container .my-auto,
+#auth-container .pb-10 {
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+#auth-container .items-center {
+	align-items: stretch !important;
+}
+
+#auth-container .justify-center {
+	justify-content: flex-start !important;
+}
+
+#auth-container form {
+	width: 100%;
+	gap: 0.72rem;
+}
+
+#auth-container form > div:first-child {
+	margin-bottom: 0.5rem !important;
+}
+
+#auth-container .text-2xl {
+	font-size: 1.45rem !important;
+	line-height: 1.15 !important;
+	font-weight: 600 !important;
+	letter-spacing: 0 !important;
+	color: #ffffff !important;
+}
+
+#auth-container label {
+	color: rgba(248, 250, 252, 0.76) !important;
+	font-size: 0.78rem !important;
+	font-weight: 500 !important;
+}
+
+#auth-container input {
+	min-height: 42px !important;
+	padding: 0.72rem 0 !important;
+	border-radius: 0 !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.24) !important;
+	color: #ffffff !important;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+#auth-container input:focus {
+	border-bottom-color: rgba(255, 255, 255, 0.82) !important;
+}
+
+#auth-container input::placeholder {
+	color: rgba(226, 232, 240, 0.46) !important;
+}
+
+#auth-container button[type='submit'],
+#auth-container form button:last-child {
+	min-height: 44px !important;
+	border-radius: 8px !important;
+	background: #f8fafc !important;
+	color: #050505 !important;
+	font-weight: 600 !important;
+	box-shadow: 0 16px 42px rgba(0, 0, 0, 0.26) !important;
+	transition: transform 160ms ease, background 160ms ease !important;
+}
+
+#auth-container button[type='submit']:hover,
+#auth-container form button:last-child:hover {
+	transform: translateY(-1px);
+	background: #ffffff !important;
+}
+
+#auth-container a,
+#auth-container button:not([type='submit']) {
+	color: rgba(248, 250, 252, 0.8) !important;
+}
+
+@keyframes openwebuiAuthPanelIn {
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@media (max-width: 640px) {
+	#auth-page::before {
+		background: rgba(5, 5, 5, 0.54);
+	}
+
+	#auth-container > div {
+		width: 100vw !important;
+		border-left: 0;
+		background: rgba(7, 10, 14, 0.66);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#auth-container > div {
+		animation-duration: 1ms;
+		transform: none;
+	}
+}

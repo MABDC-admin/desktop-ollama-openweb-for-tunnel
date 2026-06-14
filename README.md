@@ -7,6 +7,7 @@ Local Windows wrapper for Open WebUI backed by Ollama.
 - A self-contained Windows `OpenWebUI.exe` wrapper using WPF + WebView2.
 - A WSL Docker startup script for Open WebUI on `http://127.0.0.1:8080`.
 - Default Ollama model wiring for `qwen2.5:3b`.
+- A minimalist login theme with a muted looping background video.
 - A Start Menu shortcut installer.
 
 ## Requirements
@@ -60,7 +61,8 @@ Start Menu > app-it > Open WebUI
 - Default model: `qwen2.5:3b`
 - Container name: `open-webui`
 - Docker image: `ghcr.io/open-webui/open-webui:main`
+- Login theme assets: `assets\login-theme`
 
 ## Notes
 
-The EXE is intentionally just a desktop shell around the local Open WebUI URL. It does not start Ollama or Docker by itself. Use `scripts\Start-OpenWebUI.ps1` to ensure the backend container is running.
+The EXE is intentionally just a desktop shell around the local Open WebUI URL. It does not start Ollama or Docker by itself. Use `scripts\Start-OpenWebUI.ps1` to ensure the backend container is running and to reapply the login theme assets.

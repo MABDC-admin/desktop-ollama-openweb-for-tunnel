@@ -17,6 +17,56 @@ function Invoke-Wsl {
     }
 }
 
+function ConvertTo-WslPath {
+    param([Parameter(Mandatory)][string]$Path)
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+
+    if ($resolved -match '^([A-Za-z]):\\(.*)$') {
+        $drive = $Matches[1].ToLowerInvariant()
+        $relative = $Matches[2] -replace '\\', '/'
+        return "/mnt/$drive/$relative"
+    }
+
+    throw "Unsupported path format for WSL conversion: $Path"
+}
+
+function Quote-Bash {
+    param([Parameter(Mandatory)][string]$Value)
+    "'" + ($Value -replace "'", "'\''") + "'"
+}
+
+function Copy-ToContainer {
+    param(
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Destination
+    )
+
+    $wslSource = ConvertTo-WslPath $Source
+    Invoke-Wsl ("docker cp {0} {1}" -f (Quote-Bash $wslSource), (Quote-Bash "${ContainerName}:$Destination"))
+}
+
+function Apply-LoginTheme {
+    $repoRoot = Split-Path -Parent $PSScriptRoot
+    $themeDir = Join-Path $repoRoot 'assets\login-theme'
+
+    if (-not (Test-Path -LiteralPath $themeDir)) {
+        return
+    }
+
+    Write-Host 'Applying login page video theme...'
+
+    $customCss = Join-Path $themeDir 'custom.css'
+    $loaderJs = Join-Path $themeDir 'loader.js'
+    $video = Join-Path $themeDir 'turn_into_a_video_animation.mp4'
+
+    Copy-ToContainer -Source $customCss -Destination '/app/build/static/custom.css'
+    Copy-ToContainer -Source $customCss -Destination '/app/backend/open_webui/static/custom.css'
+    Copy-ToContainer -Source $loaderJs -Destination '/app/build/static/loader.js'
+    Copy-ToContainer -Source $loaderJs -Destination '/app/backend/open_webui/static/loader.js'
+    Copy-ToContainer -Source $video -Destination '/app/build/static/turn_into_a_video_animation.mp4'
+    Copy-ToContainer -Source $video -Destination '/app/backend/open_webui/static/turn_into_a_video_animation.mp4'
+}
+
 if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
     throw 'WSL is required but wsl.exe was not found.'
 }
@@ -70,6 +120,8 @@ docker run -d \
 } else {
     Invoke-Wsl "docker start '$ContainerName' >/dev/null"
 }
+
+Apply-LoginTheme
 
 $deadline = (Get-Date).AddMinutes(4)
 do {
