@@ -38,7 +38,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Build-Wrapper.ps1
 Output:
 
 ```text
-outputs\OpenWebUI.exe
+outputs\desktop-openwebui-ollama.exe
 ```
 
 ## Install Start Menu Shortcut

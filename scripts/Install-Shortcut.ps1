@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$Exe = Join-Path $RepoRoot 'outputs\OpenWebUI.exe'
+$Exe = Join-Path $RepoRoot 'outputs\desktop-openwebui-ollama.exe'
 
 if (-not (Test-Path $Exe)) {
     throw "Missing $Exe. Run scripts\Build-Wrapper.ps1 first."
