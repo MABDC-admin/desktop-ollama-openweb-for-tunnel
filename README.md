@@ -8,6 +8,7 @@ Local Windows wrapper for Open WebUI backed by Ollama.
 - A WSL Docker startup script for Open WebUI on `http://127.0.0.1:8080`.
 - Default Ollama model wiring for `qwen2.5:3b`.
 - A minimalist login theme with a muted looping background video.
+- A persistent default blueprint system prompt for the local default model.
 - A Start Menu shortcut installer.
 
 ## Requirements
@@ -62,7 +63,8 @@ Start Menu > app-it > Open WebUI
 - Container name: `open-webui`
 - Docker image: `ghcr.io/open-webui/open-webui:main`
 - Login theme assets: `assets\login-theme`
+- Default blueprint prompt: `assets\default-blueprint\prompt.md`
 
 ## Notes
 
-The EXE is intentionally just a desktop shell around the local Open WebUI URL. It does not start Ollama or Docker by itself. Use `scripts\Start-OpenWebUI.ps1` to ensure the backend container is running and to reapply the login theme assets.
+The EXE is intentionally just a desktop shell around the local Open WebUI URL. It does not start Ollama or Docker by itself. Use `scripts\Start-OpenWebUI.ps1` to ensure the backend container is running, reapply the login theme assets, and restore the default blueprint prompt.

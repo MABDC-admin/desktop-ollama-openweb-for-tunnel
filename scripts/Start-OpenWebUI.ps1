@@ -125,6 +125,33 @@ function Apply-LoginTheme {
     Update-IndexHtmlTheme -ThemeDir $themeDir
 }
 
+function Apply-DefaultBlueprintPrompt {
+    $repoRoot = Split-Path -Parent $PSScriptRoot
+    $blueprintDir = Join-Path $repoRoot 'assets\default-blueprint'
+
+    if (-not (Test-Path -LiteralPath $blueprintDir)) {
+        return
+    }
+
+    Write-Host "Applying default blueprint prompt to $Model..."
+
+    $prompt = Join-Path $blueprintDir 'prompt.md'
+    $script = Join-Path $blueprintDir 'apply_default_blueprint.py'
+    $containerPrompt = '/tmp/openwebui-default-blueprint-prompt.md'
+    $containerScript = '/tmp/apply_default_blueprint.py'
+
+    Copy-ToContainer -Source $prompt -Destination $containerPrompt
+    Copy-ToContainer -Source $script -Destination $containerScript
+
+    Invoke-Wsl (
+        "docker exec {0} python {1} /app/backend/data/webui.db {2} {3}" -f
+        (Quote-Bash $ContainerName),
+        (Quote-Bash $containerScript),
+        (Quote-Bash $containerPrompt),
+        (Quote-Bash $Model)
+    )
+}
+
 if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
     throw 'WSL is required but wsl.exe was not found.'
 }
@@ -180,6 +207,7 @@ docker run -d \
 }
 
 Apply-LoginTheme
+Apply-DefaultBlueprintPrompt
 
 $deadline = (Get-Date).AddMinutes(4)
 do {
