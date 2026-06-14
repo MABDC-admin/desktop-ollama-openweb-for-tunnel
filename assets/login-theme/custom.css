@@ -92,7 +92,8 @@ html.openwebui-video-auth body {
 }
 
 #auth-container form > div:first-child {
-	margin-bottom: 0.5rem !important;
+	display: none !important;
+	margin-bottom: 0 !important;
 }
 
 #auth-container .text-2xl {
@@ -142,6 +143,11 @@ html.openwebui-video-auth body {
 #auth-container form button:last-child:hover {
 	transform: translateY(-1px);
 	background: #ffffff !important;
+}
+
+#auth-container button[aria-label='Make password visible in the user interface'],
+#auth-container button[aria-label='Make password hidden in the user interface'] {
+	display: none !important;
 }
 
 #auth-container a,
